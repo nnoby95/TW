@@ -1,0 +1,16 @@
+új kieg. esetén:
+	ujkieg(a,b,c); és ujkieg_hang(a,b); hívása
+	1.: kieg. táblaID-je; fenti kis név; és alap tartalma <tr>-el kezdõdjön, </table> nem kell.
+	2.: Hangbeállításokba a hangjai, file nevei. megjelenõ név, file-ok ;-vel (playSound-ba errõl megy a hivatkozás!). Mindig .wav, nem kell kiírni
+
+Globál változók:
+	AZON - automata azonosító kiosztó
+	BASE_URL - a játék URL címe game.php nélkül
+	CONFIG - világbeállítások XML
+	SPEED/UNITS - sebességek
+	SZEM4_LOCAL_STORAGE - szabadon használható.
+	
+Használható fg.-ek
+	playSound(hang) - hang lejátszása
+	alert2(str) - alert helyett.
+	sugo(str) - súgónak
