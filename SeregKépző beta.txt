@@ -1,0 +1,162 @@
+let troopSettings = {};
+let intervalMinutes = 5; // Default to 5 minutes
+let recruitmentInterval;
+
+function setupTroops() {
+    const units = [
+        { name: 'Spear fighter', id: 'spear', icon: '/graphic/unit/unit_spear.png' },
+        { name: 'Swordsman', id: 'sword', icon: '/graphic/unit/unit_sword.png' },
+        { name: 'Axeman', id: 'axe', icon: '/graphic/unit/unit_axe.png' },
+        { name: 'Scout', id: 'spy', icon: '/graphic/unit/unit_spy.png' },
+        { name: 'Light cavalry', id: 'light', icon: '/graphic/unit/unit_light.png' }
+    ];
+
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border: 2px solid #603000;
+        border-radius: 10px;
+        z-index: 10000;
+    `;
+
+    units.forEach(unit => {
+        const unitDiv = document.createElement('div');
+        unitDiv.style.marginBottom = '10px';
+        
+        const icon = document.createElement('img');
+        icon.src = unit.icon;
+        icon.style.marginRight = '10px';
+        unitDiv.appendChild(icon);
+
+        const label = document.createElement('label');
+        label.textContent = unit.name + ': ';
+        unitDiv.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '0';
+        input.value = troopSettings[unit.id] || '0';
+        input.id = 'setup_' + unit.id;
+        unitDiv.appendChild(input);
+
+        popup.appendChild(unitDiv);
+    });
+
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Save';
+    saveButton.onclick = () => {
+        units.forEach(unit => {
+            const input = document.getElementById('setup_' + unit.id);
+            troopSettings[unit.id] = parseInt(input.value) || 0;
+        });
+        document.body.removeChild(popup);
+        console.log("Troop settings saved:", troopSettings);
+    };
+    popup.appendChild(saveButton);
+
+    document.body.appendChild(popup);
+}
+
+function recruitUnits() {
+    const units = ['spear', 'sword', 'axe', 'spy', 'light'];
+    
+    let unitsRecruited = false;
+    units.forEach(unit => {
+        const input = document.getElementById(`${unit}_0`);
+        if (input && troopSettings[unit] > 0) {
+            input.value = troopSettings[unit];
+            unitsRecruited = true;
+            console.log(`Set ${troopSettings[unit]} ${unit}(s) for recruitment`);
+        }
+    });
+
+    if (!unitsRecruited) {
+        console.error("No units were set for recruitment. Please use 'Setup Troops' first.");
+        return;
+    }
+
+    const trainForm = document.getElementById('train_form');
+    if (trainForm) {
+        const submitButton = trainForm.querySelector('input[type="submit"]');
+        if (submitButton) {
+            console.log("Recruit button found, clicking...");
+            submitButton.click();
+            console.log("Recruitment initiated for: ", troopSettings);
+        } else {
+            console.error("Recruit button not found in the form!");
+        }
+    } else {
+        console.error("Train form not found!");
+    }
+}
+
+function setRecruitmentInterval() {
+    const input = prompt("Enter the interval in minutes between recruitment attempts:");
+    intervalMinutes = parseInt(input) || 5; // Default to 5 minutes if invalid input
+    console.log(`Interval set to ${intervalMinutes} minutes.`);
+}
+
+function startRecruitment() {
+    if (recruitmentInterval) {
+        clearInterval(recruitmentInterval);
+    }
+    recruitUnits();
+    recruitmentInterval = setInterval(recruitUnits, intervalMinutes * 60 * 1000);
+    console.log(`Automatic recruitment started. Will attempt to recruit units every ${intervalMinutes} minutes.`);
+}
+
+function createUI() {
+    const uiDiv = document.createElement('div');
+    uiDiv.style.position = 'fixed';
+    uiDiv.style.top = '50%';
+    uiDiv.style.left = '50%';
+    uiDiv.style.transform = 'translate(-50%, -50%)';
+    uiDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+    uiDiv.style.padding = '15px';
+    uiDiv.style.border = '2px solid #603000';
+    uiDiv.style.borderRadius = '10px';
+    uiDiv.style.zIndex = '9999';
+    uiDiv.style.textAlign = 'center';
+
+    const buttonStyle = `
+        margin: 5px;
+        padding: 10px 15px;
+        background-color: #603000;
+        color: #FFD700;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    `;
+
+    const setupTroopsButton = document.createElement('button');
+    setupTroopsButton.textContent = 'Setup Troops';
+    setupTroopsButton.onclick = setupTroops;
+    setupTroopsButton.style.cssText = buttonStyle;
+
+    const setIntervalButton = document.createElement('button');
+    setIntervalButton.textContent = 'Set Interval';
+    setIntervalButton.onclick = setRecruitmentInterval;
+    setIntervalButton.style.cssText = buttonStyle;
+
+    const startRecruitmentButton = document.createElement('button');
+    startRecruitmentButton.textContent = 'Start Recruitment';
+    startRecruitmentButton.onclick = startRecruitment;
+    startRecruitmentButton.style.cssText = buttonStyle;
+
+    uiDiv.appendChild(setupTroopsButton);
+    uiDiv.appendChild(document.createElement('br'));
+    uiDiv.appendChild(setIntervalButton);
+    uiDiv.appendChild(document.createElement('br'));
+    uiDiv.appendChild(startRecruitmentButton);
+
+    document.body.appendChild(uiDiv);
+}
+
+// Initialize the UI
+createUI();
